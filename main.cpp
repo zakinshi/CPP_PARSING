@@ -16,19 +16,23 @@ void _parseLine( std::string line, char sep, mapStrFloat & InputData) {
 	try {
 
 		dataLine The_Line( line, sep);
+
 		The_Line.FormatChecker();
 		The_Line.splitDatas();
 		The_Line.checkDataValidation();
+
 		if (sep == ',')
 			return (The_Line.hold_formation(InputData));
+
 		The_Line.bounderFounder(InputData);
+
 	} catch ( const char * msg ) {
 		std::cout << msg << std::endl;
 	}
 }
 
 void trim(std::string & line );
-void first_line_checker(std::string & line, char & _del ) {
+bool first_line_checker(std::string & line, char & _del ) {
 
 	size_t span = line.find(_del);
 	std::string FirstSide ( line.substr(0, span) );
@@ -38,32 +42,35 @@ void first_line_checker(std::string & line, char & _del ) {
 	trim(SecondSide);
 
 	if (_del == '|')
-		if (_del == '|' && (FirstSide != "date" || SecondSide != "value"))
-			throw "Eroor: On file head: use: data | value";
+		if ( FirstSide.compare("date") || SecondSide.compare("value") )
+			return false;
+	if (_del == ',')
+		if ( FirstSide.compare("date") || SecondSide.compare("exchange_rate") )
+			return false;
+
+	return true;
 }
 
 int read_the_File( std::string file, mapStrFloat & baseData, char sep ) {
 
 	std::ifstream readfile ( file );
+
 	if ( !readfile.is_open() )
 		return file_not_found(file);
 
 	std::string line;
+	std::getline(readfile, line);
 
-	try {
-		std::getline(readfile, line);
-		first_line_checker(line, sep);
-	} catch ( const char * msg ) {
-		readfile.close();
-		readfile.open(file.c_str());
-		std::cout << msg << std::endl;
-	} 
+	if ( !first_line_checker(line, sep) ) {		/* check the first line of file if is correct */
+		std::cout << "Warning: File Head: use: date | value" << std::endl;
+		return (readfile.close(), 0);
+	}
 
 	while (std::getline(readfile, line))
 		_parseLine(line, sep, baseData);
 
 	readfile.close();
-	return 0;
+	return 1;
 }
 
 int main(int ac, char **av) {
@@ -71,9 +78,10 @@ int main(int ac, char **av) {
 	if (ac != 3) return 1;
 
 	mapStrFloat baseData;
-	read_the_File(av[2], baseData, ',');
 
-	read_the_File(av[1], baseData, '|');
+	if ( read_the_File(av[2], baseData, ',') )
+		if ( read_the_File(av[1], baseData, '|') )
+			return 0;
 
 	return 0;
 }

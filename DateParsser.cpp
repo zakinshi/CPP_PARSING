@@ -1,5 +1,6 @@
 #include <cctype>
 #include <cstddef>
+#include <cstdlib>
 #include "DateParsser.hpp"
 
 void is_all_digit( std::string const & to_chek ) {
@@ -27,11 +28,26 @@ void FormatDate::MonthValueChecker( void ) {
 		throw "Incorrect_Month_Number";
 }
 
+bool is_leap_year( int year ) {
+
+	if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)
+		return true;
+	return false;
+}
+
+
 void FormatDate::DayValueChecker( void ) {
 
+	int daysMonth[13] = {0,31, 28,31,30,31,30,31,31,30,31,30,31 };
+
 	is_all_digit( _day );
+	int the_month = atoi(_month.c_str());
+
+	if (is_leap_year(atoi(_year.c_str())))
+		daysMonth[2] = 29;
+
 	int isday = std::atoi( _day.c_str() );
-	if ( isday > 31 || !isday )
+	if ( isday > daysMonth[the_month] || !isday )
 		throw "Incorrect_Day_Number";
 
 }
