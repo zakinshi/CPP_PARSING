@@ -40,6 +40,9 @@ void dataLine::checkDataValidation() {
 	sinshi ValueChecker;
 	ValueChecker.value = _StrValue;
 	_Value = ValueChecker.ValueCheckin();
+	if ( _del == '|')
+		if ( _Value > 1000 )
+			throw "Error: too large a number.";
 }
 
 void dataLine::FormatChecker( void ) {
@@ -48,11 +51,13 @@ void dataLine::FormatChecker( void ) {
 
 	if (!size)
 		throw "NonExepted: EMPTY_LINE";
-	if (size < 7)
-		throw "Foramat: Error";
+	if (size < 7) {
+		std::cout << "Error: bad input \t=> " << std::flush;
+		throw _line.c_str();
+	}
 
-	size_t span = _line.find(_del, 0);
 	const std::string to_thorwed ("Error: bad input \t=> " + _line);
+	size_t span = _line.find(_del, 0);
 	if (span == std::string::npos )
 		throw to_thorwed.c_str();
 
