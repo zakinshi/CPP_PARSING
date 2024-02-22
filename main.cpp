@@ -27,6 +27,21 @@ void _parseLine( std::string line, char sep, mapStrFloat & InputData) {
 	}
 }
 
+void trim(std::string & line );
+void first_line_checker(std::string & line, char & _del ) {
+
+	size_t span = line.find(_del);
+	std::string FirstSide ( line.substr(0, span) );
+	trim(FirstSide);
+
+	std::string SecondSide ( line.substr(span + 1));
+	trim(SecondSide);
+
+	if (_del == '|')
+		if (_del == '|' && (FirstSide != "date" || SecondSide != "value"))
+			throw "Eroor: On file head: use: data | value";
+}
+
 int read_the_File( std::string file, mapStrFloat & baseData, char sep ) {
 
 	std::ifstream readfile ( file );
@@ -34,7 +49,16 @@ int read_the_File( std::string file, mapStrFloat & baseData, char sep ) {
 		return file_not_found(file);
 
 	std::string line;
-	std::getline(readfile, line);			// skip the first line...
+
+	try {
+		std::getline(readfile, line);
+		first_line_checker(line, sep);
+	} catch ( const char * msg ) {
+		readfile.close();
+		readfile.open(file.c_str());
+		std::cout << msg << std::endl;
+	} 
+
 	while (std::getline(readfile, line))
 		_parseLine(line, sep, baseData);
 

@@ -28,6 +28,9 @@ void dataLine::bounderFounder(mapStrFloat & _DataFile) {
 		std::cout << it->first << std::flush;
 		std::cout << "\t=> " << _Value << "\t= " << it->second * _Value << std::endl;
 	}
+	else {
+		std::cout << "Date Not Found: " << _Date << std::endl;
+	}
 }
 
 void dataLine::checkDataValidation() {
@@ -45,6 +48,8 @@ void dataLine::FormatChecker( void ) {
 
 	if (!size)
 		throw "NonExepted: EMPTY_LINE";
+	if (size < 7)
+		throw "Foramat: Error";
 
 	size_t span = _line.find(_del, 0);
 	const std::string to_thorwed ("Error: bad input \t=> " + _line);
@@ -79,4 +84,3 @@ void dataLine::splitDatas( void ) {
 	_StrValue = SecondSide;
 
 }
-
